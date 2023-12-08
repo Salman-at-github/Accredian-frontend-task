@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Container } from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -10,6 +10,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useFormValidation } from "../hooks/validationHook";
 import { isEmpty } from "../utils/helpers";
+import { useShowToast } from "../hooks/showToastHook";
 
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,11 +74,26 @@ function Signup() {
     validationRules
   );
 
-  const handleSignup = (data) => {
-    if(formData.password === formData.confirmPassword){
-      console.log(data);
-    }
-    
+  const showToast = useShowToast();
+  const navigateTo = useNavigate()
+  const handleSignup = async(data) => {
+      const response = await fetch('http://127.0.0.1:8000/api/signup',{
+        method: "POST",
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({username: data.username.trim(), email: data.email.trim(), password: data.password.trim()})
+      })
+      if(response.status === 201){
+        const data = await response.json()
+        showToast('success', data.message)
+        navigateTo('/login')
+      } else if(response.status === 400){
+        const data = await response.json()
+        showToast('error', data.message)
+      } else {
+        showToast('error', "Something went wrong. Please contact admin")
+      }
   }
 
   return (
@@ -186,7 +202,7 @@ function Signup() {
               fullWidth
               color="secondary"
               variant="contained"
-              disabled={isEmpty(formData)}
+              disabled={isEmpty(formData) || formData.confirmPassword !== formData.password}
               sx={{
                 mt: 3,
                 mb: 2,

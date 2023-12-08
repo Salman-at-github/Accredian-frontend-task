@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Container } from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -10,6 +10,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useFormValidation } from "../hooks/validationHook";
 import { isEmpty } from "../utils/helpers";
+import { useShowToast } from "../hooks/showToastHook";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,10 +40,29 @@ const Login = () => {
     validationRules
   );
 
-  const handleLogin = (data) => {
-    console.log(data);
-    // Perform login logic here
-  };
+  const showToast = useShowToast();
+  const navigateTo = useNavigate()
+  const handleLogin = async(data) => {
+      const response = await fetch('http://127.0.0.1:8000/api/login',{
+        method: "POST",
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({user: data.user.trim(), password: data.password.trim()})
+      })
+      if(response.status === 200){
+        const data = await response.json()
+        showToast('success', data.message)
+        const token = data.token;
+        localStorage.setItem('token', token)
+        navigateTo('/')
+      } else if([400,401,404].includes(response.status)){
+        const data = await response.json()
+        showToast('error', data.message)
+      } else {
+        showToast('error', "Something went wrong. Please contact admin")
+      }
+  }
 
   return (
     <Container
