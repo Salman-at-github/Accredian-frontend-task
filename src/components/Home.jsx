@@ -45,7 +45,7 @@ const HomePage = () => {
           Browse Courses
         </Button>
       </Box>
-      <Typography variant="body1" color="textSecondary" align="center">
+      <Typography variant="body1" color="textSecondary" align="center" sx={{fontWeight:500}}>
         Done for the day?{" "}
           <Button onClick={handleLogout}>Logout</Button>
       </Typography>
