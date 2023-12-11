@@ -1,3 +1,4 @@
+<!-- In order to login/sign up, you must run the backend sever in addition to this front end client version -->
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
